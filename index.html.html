@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="si">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S&S hybrid care - Hybrid Vehicle Repair & Live Tracking</title>
+    <style>
+        :root {
+            --primary: #0d9488;
+            --primary-dark: #0f766e;
+            --secondary: #0284c7;
+            --bg: #eef2f6;
+            --card: #ffffff;
+            --text: #0f172a;
+            --muted: #64748b;
+            --border: #cbd5e1;
+            --success: #16a34a;
+            --warning: #d97706;
+            --danger: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 1320px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: linear-gradient(135deg, #042f2e 0%, #0f766e 60%, #0284c7 100%);
+            color: #fff;
+            padding: 22px 26px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 14px;
+            box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.25);
+        }
+
+        .brand-title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.7rem;
+        }
+
+        header h1 { font-size: 1.6rem; letter-spacing: 0.3px; }
+        header p { font-size: 0.88rem; color: #ccfbf1; margin-top: 2px; }
+
+        .sync-pill {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: var(--card);
+            padding: 16px 20px;
+            border-radius: 14px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 4px solid var(--primary);
+        }
+
+        .stat-box.inspect { border-bottom-color: var(--warning); }
+        .stat-box.repair { border-bottom-color: var(--secondary); }
+        .stat-box.ready { border-bottom-color: var(--success); }
+
+        .stat-info span { font-size: 0.82rem; color: var(--muted); font-weight: 600; }
+        .stat-info h2 { font-size: 1.65rem; margin-top: 2px; }
+        .stat-emoji { font-size: 1.8rem; opacity: 0.85; }
+
+        .btn {
+            padding: 9px 14px;
+            border: none;
+            border-radius: 9px;
+            font-weight: 600;
+            font-size: 0.86rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-secondary { background: var(--secondary); color: #fff; }
+        .btn-light { background: #e2e8f0; color: #1e293b; }
+        .btn-whatsapp { background: #16a34a; color: #fff; }
+        .btn-warning { background: #f59e0b; color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-dark { background: #0f172a; color: #fff; }
+        .btn-sm { padding: 6px 10px; font-size: 0.79rem; }
+        .btn-full { width: 100%; justify-content: center; padding: 11px; }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 440px 1fr;
+            gap: 22px;
+            align-items: start;
+        }
+
+        @media (max-width: 980px) {
+            .grid-layout { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 22px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1.12rem;
+            font-weight: 700;
+            padding-bottom: 12px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .form-group { margin-bottom: 12px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+        label {
+            display: block;
+            font-size: 0.83rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #334155;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            font-size: 0.9rem;
+            background: #fff;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.12);
+        }
+
+        textarea { min-height: 62px; resize: vertical; }
+
+        .custom-brand-box {
+            margin-top: 8px;
+            padding: 10px;
+            background: #f8fafc;
+            border: 1px dashed #0d9488;
+            border-radius: 9px;
+        }
+
+        .intake-box {
+            background: linear-gradient(to right, #f0fdf4, #ecfeff);
+            border: 1px solid #99f6e4;
+            padding: 14px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
+
+        .intake-box-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #0f766e;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .media-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .media-preview img, .media-preview video {
+            width: 82px;
+            height: 82px;
+            object-fit: cover;
+            border-radius: 9px;
+            border: 1px solid var(--border);
+        }
+
+        .jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 16px;
+        }
+
+        .job-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 18px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .job-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px -5px rgba(15, 23, 42, 0.1);
+        }
+
+        .job-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 5px;
+            background: var(--secondary);
+        }
+
+        .job-card.status-inspect::before { background: var(--warning); }
+        .job-card.status-ready::before { background: var(--success); }
+
+        .job-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .brand-logo-wrap { display: flex; align-items: center; gap: 12px; }
+
+        .car-logo-circle {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            padding: 6px;
+        }
+
+        .number-plate {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #facc15;
+            color: #0f172a;
+            border: 2px solid #0f172a;
+            border-radius: 6px;
+            padding: 2px 9px;
+            font-weight: 800;
+            font-size: 0.92rem;
+            letter-spacing: 0.8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+        }
+
+        .plate-province {
+            font-size: 0.65rem;
+            background: #0f172a;
+            color: #facc15;
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        .car-model-text { font-size: 0.85rem; color: var(--muted); font-weight: 600; margin-top: 4px; }
+
+        .fault-box {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-left: 4px solid var(--danger);
+            border-radius: 10px;
+            padding: 9px 12px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+        }
+
+        .fault-label {
+            font-size: 0.74rem;
+            font-weight: 700;
+            color: #b91c1c;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .b-inspect { background: #fef3c7; color: #92400e; }
+        .b-progress { background: #e0f2fe; color: #075985; }
+        .b-ready { background: #dcfce7; color: #166534; }
+
+        .job-meta {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.84rem;
+            margin-bottom: 12px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .job-meta div { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .job-meta div:last-child { margin-bottom: 0; }
+
+        .quick-status-row { margin-bottom: 10px; }
+        .quick-status-row select { padding: 6px 10px; font-size: 0.82rem; font-weight: 600; background: #f8fafc; }
+
+        .media-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+        .pill { font-size: 0.75rem; padding: 3px 8px; border-radius: 6px; background: #f1f5f9; color: #334155; font-weight: 600; }
+
+        .card-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: auto; }
+
+        .customer-view { max-width: 850px; margin: 0 auto; }
+
+        .lookup-bar {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .lookup-bar input { flex: 1; min-width: 200px; }
+
+        .stepper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0; }
+        .step {
+            text-align: center;
+            padding: 10px 6px;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 700;
+            border: 1px solid #e2e8f0;
+        }
+        .step.active { background: #ccfbf1; color: #0f766e; border-color: #14b8a6; }
+
+        .timeline-item { border-left: 3px solid var(--primary); padding-left: 15px; margin-bottom: 18px; }
+        .timeline-date { font-size: 0.8rem; font-weight: 700; color: var(--primary-dark); }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .gallery-grid img, .gallery-grid video {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #000;
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            z-index: 999;
+            overflow-y: auto;
+        }
+
+        .modal-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 22px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.25);
+            max-height: 92vh;
+            overflow-y: auto;
+        }
+
+        .pos-receipt {
+            border: 1px dashed #334155;
+            padding: 18px;
+            border-radius: 8px;
+            background: #fff;
+            color: #0f172a;
+            font-size: 0.88rem;
+        }
+
+        .pos-center { text-align: center; }
+        .pos-line { border-top: 1px dashed #64748b; margin: 10px 0; padding-top: 10px; }
+        .pos-row { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 5px; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printModalContent, #printModalContent * { visibility: visible; }
+            #printModalContent {
+                position: fixed;
+                left: 0;
+                top: 0;
+                width: 100%;
+                max-width: 100%;
+                box-shadow: none;
+                border-radius: 0;
+                padding: 10px;
+            }
+            .no-print { display: none !important; }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div class="brand-title">
+            <div class="brand-icon">⚡</div>
+            <div>
+                <h1>S&S hybrid care</h1>
+                <p>Hybrid Vehicle Diagnostics, Repair & Live Customer Tracking • Tel: 0771704160</p>
+            </div>
+        </div>
+        <div class="top-actions">
+            <span class="sync-pill" id="cloudStatusBadge">☁️ Connecting Realtime DB...</span>
+            <span id="staffTopActions" style="display:inline-flex; gap:8px; flex-wrap:wrap;">
+                <button class="btn btn-light btn-sm" onclick="exportBackup()">📥 Backup Data</button>
+                <button class="btn btn-light btn-sm" onclick="document.getElementById('importInput').click()">📤 Restore</button>
+                <button class="btn btn-danger btn-sm" onclick="openResetModal()">🗑️ Reset All</button>
+                <input type="file" id="importInput" accept=".json" class="hidden" onchange="importBackup(event)">
+            </span>
+        </div>
+    </header>
+
+    <div id="staffView">
+        <div class="stats-bar">
+            <div class="stat-box">
+                <div class="stat-info">
+                    <span>මුළු වාහන (Total Vehicles)</span>
+                    <h2 id="statTotal">0</h2>
+                </div>
+                <div class="stat-emoji">🚘</div>
+            </div>
+            <div class="stat-box inspect">
+                <div class="stat-info">
+                    <span>පරීක්ෂා කරමින් (Inspection)</span>
+                    <h2 id="statInspect">0</h2>
+                </div>
+                <div class="stat-emoji">🩺</div>
+            </div>
+            <div class="stat-box repair">
+                <div class="stat-info">
+                    <span>අලුත්වැඩියා වෙමින් (In Repair)</span>
+                    <h2 id="statRepair">0</h2>
+                </div>
+                <div class="stat-emoji">🔧</div>
+            </div>
+            <div class="stat-box ready">
+                <div class="stat-info">
+                    <span>භාර දීමට සූදානම් (Ready)</span>
+                    <h2 id="statReady">0</h2>
+                </div>
+                <div class="stat-emoji">✅</div>
+            </div>
+        </div>
+
+        <div class="grid-layout">
+            <div>
+                <div class="card">
+                    <div class="card-title">
+                        <span id="formHeading">➕ අලුත් වාහනයක් භාර ගැනීම</span>
+                        <button type="button" class="btn btn-light btn-sm hidden" id="cancelEditBtn" onclick="resetJobForm()">Cancel</button>
+                    </div>
+
+                    <form id="jobForm" onsubmit="saveJob(event)">
+                        <input type="hidden" id="editJobId">
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Job ID</label>
+                                <input type="text" id="jobCode" readonly style="background:#f1f5f9; font-weight:700;">
+                            </div>
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select id="status">
+                                    <option value="Received & Inspection">Received & Inspection</option>
+                                    <option value="In Repair">In Repair (වැඩ කරගෙන යනු ලැබේ)</option>
+                                    <option value="Ready for Delivery">Ready for Delivery (සූදානම්)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Vehicle Brand (වාහන වර්ගය) *</label>
+                                <select id="vehicleBrand" required onchange="toggleCustomBrandInput()">
+                                    <option value="Toyota">Toyota</option>
+                                    <option value="Honda">Honda</option>
+                                    <option value="Nissan">Nissan</option>
+                                    <option value="Suzuki">Suzuki</option>
+                                    <option value="Mitsubishi">Mitsubishi</option>
+                                    <option value="Mazda">Mazda</option>
+                                    <option value="Mercedes">Mercedes-Benz</option>
+                                    <option value="BMW">BMW</option>
+                                    <option value="Hyundai">Hyundai / Kia</option>
+                                    <option value="Custom">Custom Brand (Type Brand)</option>
+                                </select>
+                                <div class="custom-brand-box hidden" id="customBrandBox">
+                                    <label for="customBrandInput" style="color:#0f766e;">✍️ Type Brand Name *</label>
+                                    <input type="text" id="customBrandInput" placeholder="උදා: Subaru / Daihatsu / Lexus / BYD">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Model (මාදිලිය)</label>
+                                <input type="text" id="vehicleModel" placeholder="උදා: Prius 3rd Gen / Vezel">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Vehicle No *</label>
+                                <input type="text" id="vehicleNo" placeholder="උදා: WP CAX-1234" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Telephone Number *</label>
+                                <input type="tel" id="phone" placeholder="07XXXXXXXX" required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Customer Name (නම) *</label>
+                                <input type="text" id="customerName" placeholder="Customer ගේ නම" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Warranty Date</label>
+                                <input type="date" id="warrantyDate">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>⚠️ Fault / දෝෂය (Job Card එකේ පෙන්වන දෝෂය) *</label>
+                            <textarea id="faultDesc" placeholder="උදා: Hybrid battery weak / ABS warning / Inverter cooling pump fault..." required></textarea>
+                        </div>
+
+                        <div class="intake-box">
+                            <span class="intake-box-title">🎥 වාහනය භාර ගන්නා විට තත්ත්වය (Intake Video)</span>
+                            <div class="form-group">
+                                <label>භාර ගන්නා විට තිබූ තත්ත්වය (Intake Note)</label>
+                                <textarea id="intakeNote" placeholder="සීරීම්, warning lights, dashcam හෝ තිබූ තත්ත්වය..."></textarea>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label>භාර ගන්නා විට ගත් Video / Photos</label>
+                                <input type="file" id="intakeMediaInput" accept="video/*,image/*" multiple onchange="handleFileSelect(event, 'tempIntakeMedia')">
+                                <div class="media-preview" id="intakeMediaPreview"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Vehicle Inspection Report</label>
+                            <textarea id="inspectionReport" placeholder="Hybrid battery, ABS, inverter, engine පරීක්ෂා කළ වාර්තාව..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Repair කරපු / Replace කරපු Items</label>
+                            <textarea id="repairedItems" placeholder="දාපු අලුත් parts සහ repair කළ items..."></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Total Bill Amount (Rs.)</label>
+                                <input type="number" id="totalAmount" min="0" value="0" placeholder="0">
+                            </div>
+                            <div class="form-group">
+                                <label>Advance Paid (Rs.)</label>
+                                <input type="number" id="advanceAmount" min="0" value="0" placeholder="0">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Replace කරපු Item Photos</label>
+                            <input type="file" id="replacedPhotosInput" accept="image/*" multiple onchange="handleFileSelect(event, 'tempReplacedPhotos')">
+                            <div class="media-preview" id="replacedPhotosPreview"></div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full" id="saveJobBtn">💾 Save Job & Generate Link</button>
+                    </form>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>📅 වැඩ කරගෙන යන ගමන් Updates දාන්න</span>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Vehicle / Job</label>
+                        <select id="progressJobSelect" onchange="renderProgressList()"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Update Note (අද දවසේ කළ වැඩ)</label>
+                        <textarea id="progressNote" placeholder="උදා: Day 1 - HV Battery cells ගලවා පරීක්ෂා කරන අවස්ථාව..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Progress Photos / Videos</label>
+                        <input type="file" id="progressMediaInput" accept="image/*,video/*" multiple onchange="handleFileSelect(event, 'tempProgressMedia')">
+                        <div class="media-preview" id="progressMediaPreview"></div>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-full" onclick="addProgressUpdate()">➕ Add Repair Update & Media</button>
+
+                    <div id="staffProgressList" style="margin-top:14px;"></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>🚘 Active & Past Repair Job Cards</span>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <select id="filterBrand" style="width:145px;" onchange="renderJobsList()">
+                            <option value="All">All Brands</option>
+                            <option value="Toyota">Toyota</option>
+                            <option value="Honda">Honda</option>
+                            <option value="Nissan">Nissan</option>
+                            <option value="Suzuki">Suzuki</option>
+                            <option value="Mitsubishi">Mitsubishi</option>
+                            <option value="Mazda">Mazda</option>
+                            <option value="Mercedes">Mercedes-Benz</option>
+                            <option value="BMW">BMW</option>
+                            <option value="Hyundai">Hyundai / Kia</option>
+                            <option value="Custom">Custom Brands</option>
+                        </select>
+                        <input type="text" id="searchJob" placeholder="🔍 Vehicle No / Fault / නම..." style="width:205px;" onkeyup="renderJobsList()">
+                    </div>
+                </div>
+                <div class="jobs-grid" id="jobsList"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="customerView" class="customer-view hidden">
+        <div class="card">
+            <div class="card-title">
+                <span>🔍 Vehicle Repair Status Lookup</span>
+            </div>
+            <div class="lookup-bar">
+                <input type="text" id="customerLookupInput" placeholder="Vehicle No (උදා: WP CAX-1234) හෝ Job ID (SSH-1001) ඇතුළත් කරන්න...">
+                <button type="button" class="btn btn-primary" onclick="lookupCustomerVehicle()">Track Vehicle</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div class="car-logo-circle" id="custBrandLogo"></div>
+                    <div>
+                        <div id="custPlateDisplay"></div>
+                        <small style="color:#64748b;" id="custModelDisplay"></small>
+                    </div>
+                </div>
+                <span class="badge b-progress" id="custStatusBadge">In Repair</span>
+            </div>
+
+            <div class="stepper">
+                <div class="step" id="step1">1. Received & Inspected</div>
+                <div class="step" id="step2">2. Repair In Progress</div>
+                <div class="step" id="step3">3. Ready for Delivery</div>
+            </div>
+
+            <div class="fault-box">
+                <span class="fault-label">⚠️ Reported Fault (දෝෂය)</span>
+                <div id="custFaultDesc" style="white-space:pre-line; font-weight:600;"></div>
+            </div>
+
+            <div id="custVehicleSummary" style="font-size:0.92rem; line-height:1.7;"></div>
+        </div>
+
+        <div class="card" style="border-left: 5px solid #0d9488;">
+            <div class="card-title"><span>📥 වාහනය භාර ගන්නා විට තිබූ තත්ත්වය (Received Condition)</span></div>
+            <p id="custIntakeNote" style="white-space:pre-line; line-height:1.5;"></p>
+            <div class="gallery-grid" id="custIntakeMedia"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><span>🩺 Vehicle Inspection Report</span></div>
+            <p id="custInspection" style="white-space:pre-line; line-height:1.5;"></p>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><span>🔧 Repaired & Replaced Items</span></div>
+            <p id="custReplacedItems" style="white-space:pre-line; line-height:1.5;"></p>
+            <div class="gallery-grid" id="custReplacedPhotos"></div>
+        </div>
+
+        <div class="card">
+            <div class="card-title"><span>🕒 වැඩ කරගෙන යන ආකාරය (Live Photos & Videos)</span></div>
+            <div id="custTimeline"></div>
+        </div>
+    </div>
+</div>
+
+<!-- RESET CONFIRMATION MODAL -->
+<div class="modal-backdrop hidden" id="resetModal">
+    <div class="modal-card">
+        <h3 style="color:#b91c1c; margin-bottom:8px;">⚠️ Reset All Data?</h3>
+        <p style="font-size:0.88rem; color:#334155; line-height:1.5; margin-bottom:16px;">
+            මෙය Click කළ විට සියලුම <strong>Job Cards</strong>, <strong>Progress Updates</strong>, සහ <strong>Firebase Cloud Data</strong> සම්පූර්ණයෙන්ම මැකී යයි. අවශ්‍ය නම් පළමුව <strong>Backup Data</strong> බාගත කරගන්න.
+        </p>
+        <div style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-danger btn-full" id="confirmResetBtn" onclick="resetAllData()">🗑️ Yes, Delete All Data</button>
+            <button type="button" class="btn btn-light" onclick="closeResetModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-backdrop hidden" id="printModal">
+    <div class="modal-card" id="printModalContent">
+        <div id="printableArea" class="pos-receipt"></div>
+        <div style="display:flex; gap:8px; margin-top:14px;" class="no-print">
+            <button type="button" class="btn btn-primary btn-full" onclick="window.print()">🖨️ Print Now</button>
+            <button type="button" class="btn btn-light" onclick="closePrintModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<script>
+    const STORAGE_KEY = 'ss_hybrid_care_jobs_rtdb_v2';
+    const SHOP_NAME = 'S&S hybrid care';
+    const SHOP_TEL = '0771704160';
+
+    const FIREBASE_CONFIG = {
+        databaseURL: "https://privet-chat-1b7ed-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "privet-chat-1b7ed"
+    };
+
+    let dbRef = null;
+    if (window.firebase) {
+        if (!firebase.apps.length) {
+            firebase.initializeApp(FIREBASE_CONFIG);
+        }
+        dbRef = firebase.database().ref('ss_hybrid_care_jobs');
+    }
+
+    let jobs = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    let tempIntakeMedia = [];
+    let tempReplacedPhotos = [];
+    let tempProgressMedia = [];
+
+    function updateSyncBadge(connected = true) {
+        const badge = document.getElementById('cloudStatusBadge');
+        badge.innerText = connected
+            ? '☁️ Live Sync: asia-southeast1 RTDB'
+            : '💾 Offline Cache Mode';
+    }
+
+    function openResetModal() {
+        document.getElementById('resetModal').classList.remove('hidden');
+    }
+
+    function closeResetModal() {
+        document.getElementById('resetModal').classList.add('hidden');
+    }
+
+    async function resetAllData() {
+        const btn = document.getElementById('confirmResetBtn');
+        btn.disabled = true;
+        btn.innerText = '⏳ Resetting...';
+
+        try {
+            jobs = [];
+            localStorage.removeItem(STORAGE_KEY);
+            if (dbRef) {
+                await dbRef.remove();
+            }
+            resetJobForm();
+            renderJobsList();
+            populateProgressSelect();
+            closeResetModal();
+        } catch (err) {
+            alert('Reset කරද්දී දෝෂයක් ආවා. Database Rules පරීක්ෂා කරන්න.');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = '🗑️ Yes, Delete All Data';
+        }
+    }
+
+    function toggleCustomBrandInput(presetValue = '') {
+        const select = document.getElementById('vehicleBrand');
+        const box = document.getElementById('customBrandBox');
+        const input = document.getElementById('customBrandInput');
+        if (select.value === 'Custom') {
+            box.classList.remove('hidden');
+            input.required = true;
+            if (presetValue) input.value = presetValue;
+        } else {
+            box.classList.add('hidden');
+            input.required = false;
+            input.value = '';
+        }
+    }
+
+    function getBrandLogoSVG(brand, size = 38) {
+        const h = Math.round(size * 0.75);
+        const logos = {
+            Toyota: `<svg viewBox="0 0 100 65" width="${size}" height="${h}"><ellipse cx="50" cy="32.5" rx="44" ry="28" fill="none" stroke="#eb0a1e" stroke-width="5"/><ellipse cx="50" cy="32.5" rx="14" ry="27" fill="none" stroke="#eb0a1e" stroke-width="4.5"/><ellipse cx="50" cy="19" rx="28" ry="11" fill="none" stroke="#eb0a1e" stroke-width="4.5"/></svg>`,
+            Honda: `<svg viewBox="0 0 100 85" width="${size}" height="${size}"><rect x="10" y="8" width="80" height="69" rx="16" fill="none" stroke="#cc0000" stroke-width="6"/><path d="M30 22 L35 63 M70 22 L65 63 M34 44 L66 44" stroke="#cc0000" stroke-width="7" stroke-linecap="round"/></svg>`,
+            Nissan: `<svg viewBox="0 0 100 85" width="${size}" height="${size}"><circle cx="50" cy="42.5" r="32" fill="none" stroke="#c3002f" stroke-width="6"/><rect x="8" y="33" width="84" height="19" fill="#fff" stroke="#c3002f" stroke-width="4"/><text x="50" y="46" font-size="13" font-weight="900" text-anchor="middle" fill="#0f172a">NISSAN</text></svg>`,
+            Suzuki: `<svg viewBox="0 0 100 90" width="${size}" height="${size}"><path d="M68 18 L34 38 L66 52 L32 72" fill="none" stroke="#e30613" stroke-width="11" stroke-linejoin="bevel" stroke-linecap="square"/></svg>`,
+            Mitsubishi: `<svg viewBox="0 0 100 90" width="${size}" height="${size}"><polygon points="50,10 64,35 50,60 36,35" fill="#e60012"/><polygon points="50,60 78,60 92,84 64,84" fill="#e60012"/><polygon points="50,60 22,60 8,84 36,84" fill="#e60012"/></svg>`,
+            Mazda: `<svg viewBox="0 0 100 80" width="${size}" height="${h}"><ellipse cx="50" cy="40" rx="42" ry="32" fill="none" stroke="#1e293b" stroke-width="6"/><path d="M16 32 Q50 56 84 32 Q50 38 16 32" fill="#1e293b"/></svg>`,
+            Mercedes: `<svg viewBox="0 0 100 100" width="${size}" height="${size}"><circle cx="50" cy="50" r="42" fill="none" stroke="#334155" stroke-width="6"/><path d="M50 8 L50 50 L15 72 M50 50 L85 72" stroke="#334155" stroke-width="6" stroke-linecap="round"/></svg>`,
+            BMW: `<svg viewBox="0 0 100 100" width="${size}" height="${size}"><circle cx="50" cy="50" r="44" fill="#0f172a"/><circle cx="50" cy="50" r="28" fill="#fff"/><path d="M50 22 A28 28 0 0 1 78 50 L50 50 Z" fill="#0284c7"/><path d="M50 78 A28 28 0 0 1 22 50 L50 50 Z" fill="#0284c7"/></svg>`,
+            Hyundai: `<svg viewBox="0 0 100 65" width="${size}" height="${h}"><ellipse cx="50" cy="32.5" rx="43" ry="26" fill="none" stroke="#002c5f" stroke-width="6"/><path d="M32 48 L42 17 M68 17 L58 48 M37 33 L63 31" stroke="#002c5f" stroke-width="6" stroke-linecap="round"/></svg>`
+        };
+        return logos[brand] || `<span style="font-size:1.35rem;">🚘</span>`;
+    }
+
+    function getDisplayBrandLabel(job) {
+        if (job.vehicleBrand === 'Custom' && job.customBrand) return job.customBrand;
+        if (job.vehicleBrand === 'Mercedes') return 'Mercedes-Benz';
+        if (job.vehicleBrand === 'Hyundai') return 'Hyundai / Kia';
+        return job.vehicleBrand || 'Vehicle';
+    }
+
+    function formatPlateHTML(plate) {
+        const clean = (plate || '').toUpperCase().trim();
+        const parts = clean.split(' ');
+        if (parts.length > 1 && parts[0].length <= 3) {
+            return `<span class="number-plate"><span class="plate-province">${parts[0]}</span>${parts.slice(1).join(' ')}</span>`;
+        }
+        return `<span class="number-plate">${clean}</span>`;
+    }
+
+    window.onload = function () {
+        const params = new URLSearchParams(window.location.search);
+        const trackingId = params.get('job');
+        const lookupQuery = params.get('lookup');
+
+        if (dbRef) {
+            dbRef.on('value', snap => {
+                updateSyncBadge(true);
+                const val = snap.val();
+                jobs = val
+                    ? Object.values(val).sort((a, b) => (b.createdTs || 0) - (a.createdTs || 0))
+                    : [];
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
+
+                if (trackingId) {
+                    showCustomerTracking(trackingId);
+                } else if (lookupQuery) {
+                    document.getElementById('customerLookupInput').value = lookupQuery;
+                    lookupCustomerVehicle();
+                } else {
+                    if (!document.getElementById('editJobId').value) {
+                        document.getElementById('jobCode').value = nextJobCode();
+                    }
+                    renderJobsList();
+                    populateProgressSelect();
+                }
+            }, () => {
+                updateSyncBadge(false);
+                if (trackingId) showCustomerTracking(trackingId);
+                else {
+                    renderJobsList();
+                    populateProgressSelect();
+                }
+            });
+        } else {
+            updateSyncBadge(false);
+            if (trackingId) showCustomerTracking(trackingId);
+            else {
+                renderJobsList();
+                populateProgressSelect();
+            }
+        }
+
+        if (!trackingId && !lookupQuery) {
+            resetJobForm();
+            renderJobsList();
+            populateProgressSelect();
+        }
+    };
+
+    function persistJobs() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(jobs));
+        } catch (err) {
+            alert('Local storage සීමාව පිරී ඇත.');
+        }
+    }
+
+    async function saveJobToStore(jobObj) {
+        persistJobs();
+        if (dbRef) {
+            await dbRef.child(jobObj.id).set(jobObj);
+        }
+    }
+
+    function nextJobCode() {
+        if (jobs.length === 0) return 'SSH-1001';
+        return 'SSH-' + (1001 + jobs.length);
+    }
+
+    function resetJobForm() {
+        document.getElementById('jobForm').reset();
+        document.getElementById('editJobId').value = '';
+        document.getElementById('jobCode').value = nextJobCode();
+        document.getElementById('totalAmount').value = '0';
+        document.getElementById('advanceAmount').value = '0';
+        document.getElementById('formHeading').innerText = '➕ අලුත් වාහනයක් භාර ගැනීම';
+        document.getElementById('saveJobBtn').innerText = '💾 Save Job & Generate Link';
+        document.getElementById('cancelEditBtn').classList.add('hidden');
+        toggleCustomBrandInput();
+        tempIntakeMedia = [];
+        tempReplacedPhotos = [];
+        document.getElementById('intakeMediaPreview').innerHTML = '';
+        document.getElementById('replacedPhotosPreview').innerHTML = '';
+    }
+
+    function handleFileSelect(event, targetArrayName) {
+        const files = Array.from(event.target.files);
+        files.forEach(file => {
+            if (file.type.startsWith('video/') && file.size > 4 * 1024 * 1024) {
+                alert('Realtime Database වලට දාන්න පුළුවන් කෙටි Video clip (4MB ට අඩු) තෝරන්න.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const item = {
+                    type: file.type.startsWith('video/') ? 'video' : 'image',
+                    data: e.target.result
+                };
+                if (targetArrayName === 'tempIntakeMedia') {
+                    tempIntakeMedia.push(item);
+                    renderMediaPreview(tempIntakeMedia, 'intakeMediaPreview');
+                } else if (targetArrayName === 'tempReplacedPhotos') {
+                    tempReplacedPhotos.push(item);
+                    renderMediaPreview(tempReplacedPhotos, 'replacedPhotosPreview');
+                } else {
+                    tempProgressMedia.push(item);
+                    renderMediaPreview(tempProgressMedia, 'progressMediaPreview');
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function renderMediaPreview(list, containerId) {
+        const el = document.getElementById(containerId);
+        el.innerHTML = list.map(m =>
+            m.type === 'video'
+                ? `<video src="${m.data}" controls></video>`
+                : `<img src="${m.data}" alt="Preview">`
+        ).join('');
+    }
+
+    function getCustomerTrackingLink(id) {
+        const base = window.location.href.split('?')[0];
+        return `${base}?job=${encodeURIComponent(id)}`;
+    }
+
+    function copyCustomerLink(id) {
+        const link = getCustomerTrackingLink(id);
+        navigator.clipboard?.writeText(link).then(() => {
+            alert('Customer Link Copied:\n' + link);
+        }).catch(() => {
+            prompt('Customer Link:', link);
+        });
+    }
+
+    async function saveJob(e) {
+        e.preventDefault();
+        const btn = document.getElementById('saveJobBtn');
+        btn.disabled = true;
+        btn.innerText = '⏳ Saving to Cloud...';
+
+        try {
+            const editId = document.getElementById('editJobId').value;
+            const existing = editId ? jobs.find(j => j.id === editId) : null;
+            const selectedBrand = document.getElementById('vehicleBrand').value;
+            const customBrand = document.getElementById('customBrandInput').value.trim();
+
+            const jobObj = {
+                id: existing ? existing.id : 'JOB_' + Date.now(),
+                jobCode: document.getElementById('jobCode').value,
+                vehicleBrand: selectedBrand,
+                customBrand: selectedBrand === 'Custom' ? customBrand : '',
+                vehicleModel: document.getElementById('vehicleModel').value.trim(),
+                customerName: document.getElementById('customerName').value.trim(),
+                vehicleNo: document.getElementById('vehicleNo').value.trim().toUpperCase(),
+                phone: document.getElementById('phone').value.trim(),
+                faultDesc: document.getElementById('faultDesc').value.trim(),
+                intakeNote: document.getElementById('intakeNote').value.trim(),
+                intakeMedia: existing ? [...(existing.intakeMedia || []), ...tempIntakeMedia] : [...tempIntakeMedia],
+                warrantyDate: document.getElementById('warrantyDate').value,
+                status: document.getElementById('status').value,
+                inspectionReport: document.getElementById('inspectionReport').value.trim(),
+                repairedItems: document.getElementById('repairedItems').value.trim(),
+                totalAmount: parseFloat(document.getElementById('totalAmount').value) || 0,
+                advanceAmount: parseFloat(document.getElementById('advanceAmount').value) || 0,
+                replacedPhotos: existing ? [...(existing.replacedPhotos || []), ...tempReplacedPhotos] : [...tempReplacedPhotos],
+                updates: existing ? (existing.updates || []) : [],
+                createdAt: existing ? existing.createdAt : new Date().toLocaleString(),
+                createdTs: existing ? existing.createdTs : Date.now()
+            };
+
+            if (existing) {
+                const idx = jobs.findIndex(j => j.id === existing.id);
+                jobs[idx] = jobObj;
+            } else {
+                jobs.unshift(jobObj);
+            }
+
+            await saveJobToStore(jobObj);
+            resetJobForm();
+            renderJobsList();
+            populateProgressSelect(jobObj.id);
+        } catch (err) {
+            alert('Firebase වලට Save කරද්දී දෝෂයක් ආවා. Database Rules Public/Test mode තියෙනවද බලන්න.');
+        } finally {
+            btn.disabled = false;
+            btn.innerText = '💾 Save Job & Generate Link';
+        }
+    }
+
+    async function quickUpdateStatus(id, newStatus) {
+        const job = jobs.find(j => j.id === id);
+        if (!job) return;
+        job.status = newStatus;
+        await saveJobToStore(job);
+    }
+
+    function editJob(id) {
+        const job = jobs.find(j => j.id === id);
+        if (!job) return;
+
+        document.getElementById('editJobId').value = job.id;
+        document.getElementById('jobCode').value = job.jobCode;
+        document.getElementById('vehicleBrand').value = job.vehicleBrand || 'Toyota';
+        toggleCustomBrandInput(job.customBrand || '');
+        document.getElementById('vehicleModel').value = job.vehicleModel || '';
+        document.getElementById('customerName').value = job.customerName;
+        document.getElementById('vehicleNo').value = job.vehicleNo;
+        document.getElementById('phone').value = job.phone;
+        document.getElementById('faultDesc').value = job.faultDesc || '';
+        document.getElementById('intakeNote').value = job.intakeNote || '';
+        document.getElementById('warrantyDate').value = job.warrantyDate || '';
+        document.getElementById('status').value = job.status;
+        document.getElementById('inspectionReport').value = job.inspectionReport || '';
+        document.getElementById('repairedItems').value = job.repairedItems || '';
+        document.getElementById('totalAmount').value = job.totalAmount || 0;
+        document.getElementById('advanceAmount').value = job.advanceAmount || 0;
+
+        tempIntakeMedia = [];
+        tempReplacedPhotos = [];
+        renderMediaPreview(job.intakeMedia || [], 'intakeMediaPreview');
+        renderMediaPreview(job.replacedPhotos || [], 'replacedPhotosPreview');
+
+        document.getElementById('formHeading').innerText = `✏️ Update ${job.vehicleNo}`;
+        document.getElementById('saveJobBtn').innerText = '🔄 Update Job Card';
+        document.getElementById('cancelEditBtn').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function populateProgressSelect(selectedId = null) {
+        const select = document.getElementById('progressJobSelect');
+        const prev = selectedId || select.value;
+        select.innerHTML = jobs.map(j =>
+            `<option value="${j.id}">${j.vehicleNo} (${getDisplayBrandLabel(j)}) - ${j.customerName}</option>`
+        ).join('');
+        if (prev && jobs.some(j => j.id === prev)) select.value = prev;
+        renderProgressList();
+    }
+
+    async function addProgressUpdate() {
+        const jobId = document.getElementById('progressJobSelect').value;
+        const note = document.getElementById('progressNote').value.trim();
+        if (!jobId) return alert('කරුණාකර Vehicle එකක් තෝරන්න.');
+        if (!note && tempProgressMedia.length === 0) return alert('Update විස්තරයක් හෝ Photo/Video එකක් දාන්න.');
+
+        const job = jobs.find(j => j.id === jobId);
+        job.updates = job.updates || [];
+        job.updates.unshift({
+            timestamp: new Date().toLocaleString(),
+            note: note,
+            media: [...tempProgressMedia]
+        });
+
+        await saveJobToStore(job);
+        document.getElementById('progressNote').value = '';
+        document.getElementById('progressMediaInput').value = '';
+        tempProgressMedia = [];
+        document.getElementById('progressMediaPreview').innerHTML = '';
+        renderProgressList();
+    }
+
+    function renderProgressList() {
+        const jobId = document.getElementById('progressJobSelect').value;
+        const container = document.getElementById('staffProgressList');
+        const job = jobs.find(j => j.id === jobId);
+        if (!job || !(job.updates || []).length) {
+            container.innerHTML = '<p style="color:#64748b; font-size:0.84rem;">තවම Updates ඇතුළත් කර නැත.</p>';
+            return;
+        }
+        container.innerHTML = job.updates.map(u => `
+            <div class="timeline-item">
+                <div class="timeline-date">${u.timestamp}</div>
+                <p style="font-size:0.86rem; margin-top:3px;">${u.note || ''}</p>
+                <div class="media-preview">
+                    ${(u.media || []).map(m => m.type === 'video'
+                        ? `<video src="${m.data}" controls></video>`
+                        : `<img src="${m.data}" alt="Update">`
+                    ).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function shareWhatsApp(phone, vehicleNo, customerName, link) {
+        let cleanPhone = phone.replace(/\D/g, '');
+        if (cleanPhone.startsWith('0')) cleanPhone = '94' + cleanPhone.slice(1);
+        const msg = `ආයුබෝවන් ${customerName}! *${SHOP_NAME}* (${SHOP_TEL}) වෙත භාර දුන් ඔබගේ *${vehicleNo}* වාහනයේ අලුත්වැඩියා තත්ත්වය පහත Link එකෙන් බලාගත හැක:\n\n${link}`;
+        window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+
+    function printJobCard(id) {
+        const j = jobs.find(item => item.id === id);
+        if (!j) return;
+        const brandDisplay = getDisplayBrandLabel(j);
+
+        document.getElementById('printableArea').innerHTML = `
+            <div class="pos-center">
+                <h2 style="font-size:1.25rem;">${SHOP_NAME}</h2>
+                <div style="font-size:0.82rem; color:#475569;">Hybrid Vehicle Repair Job Card</div>
+                <div style="font-size:0.82rem; color:#475569;">Tel: ${SHOP_TEL}</div>
+            </div>
+            <div class="pos-line">
+                <div class="pos-row"><span><strong>Job ID:</strong></span> <span>${j.jobCode}</span></div>
+                <div class="pos-row"><span><strong>Date:</strong></span> <span>${j.createdAt}</span></div>
+                <div class="pos-row"><span><strong>Status:</strong></span> <span><strong>${j.status}</strong></span></div>
+            </div>
+            <div class="pos-line">
+                <div class="pos-row"><span><strong>Customer:</strong></span> <span>${j.customerName}</span></div>
+                <div class="pos-row"><span><strong>Phone:</strong></span> <span>${j.phone}</span></div>
+                <div class="pos-row"><span><strong>Vehicle No:</strong></span> <span><strong>${j.vehicleNo}</strong></span></div>
+                <div class="pos-row"><span><strong>Brand / Model:</strong></span> <span>${brandDisplay} ${j.vehicleModel || ''}</span></div>
+                <div class="pos-row"><span><strong>Warranty Date:</strong></span> <span>${j.warrantyDate || 'N/A'}</span></div>
+            </div>
+            <div class="pos-line">
+                <div style="font-weight:700; margin-bottom:3px;">Fault (දෝෂය):</div>
+                <div style="white-space:pre-line;">${j.faultDesc || 'N/A'}</div>
+            </div>
+            <div class="pos-line">
+                <div style="font-weight:700; margin-bottom:3px;">Inspection Report:</div>
+                <div style="white-space:pre-line;">${j.inspectionReport || 'N/A'}</div>
+            </div>
+            <div class="pos-line">
+                <div style="font-weight:700; margin-bottom:3px;">Repaired / Replaced Items:</div>
+                <div style="white-space:pre-line;">${j.repairedItems || 'N/A'}</div>
+            </div>
+            <div class="pos-center pos-line" style="font-size:0.78rem; color:#475569;">
+                ${SHOP_NAME} • Tel: ${SHOP_TEL}
+            </div>
+        `;
+        document.getElementById('printModal').classList.remove('hidden');
+    }
+
+    function printPosBill(id) {
+        const j = jobs.find(item => item.id === id);
+        if (!j) return;
+        const brandDisplay = getDisplayBrandLabel(j);
+        const total = parseFloat(j.totalAmount) || 0;
+        const advance = parseFloat(j.advanceAmount) || 0;
+        const balance = total - advance;
+
+        document.getElementById('printableArea').innerHTML = `
+            <div class="pos-center">
+                <h2 style="font-size:1.3rem;">${SHOP_NAME}</h2>
+                <div style="font-size:0.82rem;">POS SERVICE INVOICE / BILL</div>
+                <div style="font-size:0.85rem; font-weight:700; margin-top:2px;">Tel: ${SHOP_TEL}</div>
+            </div>
+            <div class="pos-line">
+                <div class="pos-row"><span>Bill / Job No:</span> <strong>${j.jobCode}</strong></div>
+                <div class="pos-row"><span>Date:</span> <span>${new Date().toLocaleDateString()}</span></div>
+                <div class="pos-row"><span>Customer:</span> <span>${j.customerName}</span></div>
+                <div class="pos-row"><span>Tel:</span> <span>${j.phone}</span></div>
+                <div class="pos-row"><span>Vehicle No:</span> <strong>${j.vehicleNo}</strong></div>
+                <div class="pos-row"><span>Vehicle:</span> <span>${brandDisplay} ${j.vehicleModel || ''}</span></div>
+            </div>
+            <div class="pos-line">
+                <div style="font-weight:700; margin-bottom:3px;">Fault & Work Done:</div>
+                <div style="font-size:0.83rem; margin-bottom:6px;">Fault: ${j.faultDesc || '-'}</div>
+                <div style="font-size:0.83rem; white-space:pre-line;">Items: ${j.repairedItems || '-'}</div>
+            </div>
+            <div class="pos-line">
+                <div class="pos-row"><span>Total Amount:</span> <strong>Rs. ${total.toLocaleString()}</strong></div>
+                <div class="pos-row"><span>Advance Paid:</span> <span>Rs. ${advance.toLocaleString()}</span></div>
+                <div class="pos-row" style="font-size:1rem; margin-top:4px;">
+                    <span><strong>Balance Due:</strong></span>
+                    <strong>Rs. ${balance.toLocaleString()}</strong>
+                </div>
+            </div>
+            <div class="pos-line">
+                <div class="pos-row"><span>Warranty Date:</span> <strong>${j.warrantyDate || 'N/A'}</strong></div>
+            </div>
+            <div class="pos-center pos-line" style="font-size:0.8rem;">
+                Thank you for choosing <strong>${SHOP_NAME}</strong>!<br>
+                Inquiries: ${SHOP_TEL}
+            </div>
+        `;
+        document.getElementById('printModal').classList.remove('hidden');
+    }
+
+    function closePrintModal() {
+        document.getElementById('printModal').classList.add('hidden');
+    }
+
+    function renderJobsList() {
+        const query = (document.getElementById('searchJob').value || '').toLowerCase();
+        const brandFilter = document.getElementById('filterBrand').value;
+        const container = document.getElementById('jobsList');
+
+        document.getElementById('statTotal').innerText = jobs.length;
+        document.getElementById('statInspect').innerText = jobs.filter(j => j.status.includes('Inspection')).length;
+        document.getElementById('statRepair').innerText = jobs.filter(j => j.status === 'In Repair').length;
+        document.getElementById('statReady').innerText = jobs.filter(j => j.status === 'Ready for Delivery').length;
+
+        const list = jobs.filter(j => {
+            const brandLabel = getDisplayBrandLabel(j).toLowerCase();
+            const faultText = (j.faultDesc || '').toLowerCase();
+            const matchText = j.vehicleNo.toLowerCase().includes(query) ||
+                j.customerName.toLowerCase().includes(query) ||
+                j.phone.includes(query) ||
+                brandLabel.includes(query) ||
+                faultText.includes(query);
+            const matchBrand = brandFilter === 'All' || j.vehicleBrand === brandFilter;
+            return matchText && matchBrand;
+        });
+
+        if (!list.length) {
+            container.innerHTML = '<p style="color:#64748b; padding:16px 0;">Job Cards හමු නොවීය.</p>';
+            return;
+        }
+
+        container.innerHTML = list.map(j => {
+            const link = getCustomerTrackingLink(j.id);
+            const isInspect = j.status.includes('Inspection');
+            const isReady = j.status === 'Ready for Delivery';
+            const cardStatusClass = isInspect ? 'status-inspect' : isReady ? 'status-ready' : '';
+            const badgeClass = isInspect ? 'b-inspect' : isReady ? 'b-ready' : 'b-progress';
+            const brandDisplay = getDisplayBrandLabel(j);
+
+            return `
+                <div class="job-card ${cardStatusClass}">
+                    <div>
+                        <div class="job-top">
+                            <div class="brand-logo-wrap">
+                                <div class="car-logo-circle">${getBrandLogoSVG(j.vehicleBrand, 38)}</div>
+                                <div>
+                                    ${formatPlateHTML(j.vehicleNo)}
+                                    <div class="car-model-text">${brandDisplay} ${j.vehicleModel ? '• ' + j.vehicleModel : ''}</div>
+                                </div>
+                            </div>
+                            <span class="badge ${badgeClass}">${j.status}</span>
+                        </div>
+
+                        <div class="fault-box">
+                            <span class="fault-label">⚠️ Fault (දෝෂය)</span>
+                            <div>${j.faultDesc || 'Not specified'}</div>
+                        </div>
+
+                        <div class="job-meta">
+                            <div><span>👤 Customer:</span> <strong>${j.customerName}</strong></div>
+                            <div><span>📞 Phone:</span> <strong>${j.phone}</strong></div>
+                            <div><span>🛡️ Warranty:</span> <strong>${j.warrantyDate || 'N/A'}</strong></div>
+                            <div><span>💰 Total / Adv:</span> <strong>Rs. ${(j.totalAmount || 0).toLocaleString()} / Rs. ${(j.advanceAmount || 0).toLocaleString()}</strong></div>
+                        </div>
+
+                        <div class="quick-status-row">
+                            <select onchange="quickUpdateStatus('${j.id}', this.value)">
+                                <option value="Received & Inspection" ${j.status === 'Received & Inspection' ? 'selected' : ''}>Status: Received & Inspection</option>
+                                <option value="In Repair" ${j.status === 'In Repair' ? 'selected' : ''}>Status: In Repair</option>
+                                <option value="Ready for Delivery" ${j.status === 'Ready for Delivery' ? 'selected' : ''}>Status: Ready for Delivery</option>
+                            </select>
+                        </div>
+
+                        <div class="media-pills">
+                            <span class="pill">🎥 Intake: ${(j.intakeMedia || []).length}</span>
+                            <span class="pill">📸 Parts: ${(j.replacedPhotos || []).length}</span>
+                            <span class="pill">🕒 Updates: ${(j.updates || []).length}</span>
+                        </div>
+                    </div>
+
+                    <div class="card-actions">
+                        <button class="btn btn-dark btn-sm" onclick="printJobCard('${j.id}')">🖨️ Print Card</button>
+                        <button class="btn btn-secondary btn-sm" onclick="printPosBill('${j.id}')">🧾 POS Bill</button>
+                        <button class="btn btn-whatsapp btn-sm" onclick="shareWhatsApp('${j.phone}', '${j.vehicleNo}', '${j.customerName}', '${link}')">📲 WhatsApp</button>
+                        <button class="btn btn-warning btn-sm" onclick="editJob('${j.id}')">✏️ Edit</button>
+                        <button class="btn btn-light btn-sm" onclick="copyCustomerLink('${j.id}')">📋 Copy Link</button>
+                        <a class="btn btn-light btn-sm" href="${link}" target="_blank">👁️ Link</a>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function lookupCustomerVehicle() {
+        const q = (document.getElementById('customerLookupInput').value || '').trim().toLowerCase();
+        if (!q) return;
+        const found = jobs.find(j =>
+            (j.vehicleNo || '').toLowerCase().includes(q) ||
+            (j.jobCode || '').toLowerCase() === q ||
+            (j.id || '').toLowerCase() === q
+        );
+        if (found) {
+            showCustomerTracking(found.id);
+        } else {
+            document.getElementById('staffView').classList.add('hidden');
+            document.getElementById('staffTopActions').classList.add('hidden');
+            document.getElementById('customerView').classList.remove('hidden');
+            document.getElementById('custFaultDesc').innerText = '-';
+            document.getElementById('custVehicleSummary').innerHTML =
+                '<p style="color:#dc2626;">එම Vehicle No හෝ Job ID එකට අදාළ Record එක හමු නොවීය.</p>';
+        }
+    }
+
+    function showCustomerTracking(jobId) {
+        document.getElementById('staffView').classList.add('hidden');
+        document.getElementById('staffTopActions').classList.add('hidden');
+        document.getElementById('customerView').classList.remove('hidden');
+
+        const job = jobs.find(j => j.id === jobId || j.jobCode === jobId);
+        if (!job) {
+            document.getElementById('custFaultDesc').innerText = '-';
+            document.getElementById('custVehicleSummary').innerHTML =
+                '<p style="color:#64748b;">Data loading හෝ මෙම ID එකට අදාළ Record එක Database එකේ නොමැත.</p>';
+            return;
+        }
+
+        const brandDisplay = getDisplayBrandLabel(job);
+        document.getElementById('custBrandLogo').innerHTML = getBrandLogoSVG(job.vehicleBrand, 38);
+        document.getElementById('custPlateDisplay').innerHTML = formatPlateHTML(job.vehicleNo);
+        document.getElementById('custModelDisplay').innerText = `${brandDisplay} ${job.vehicleModel || ''} • ${job.jobCode}`;
+        document.getElementById('custStatusBadge').innerText = job.status;
+        document.getElementById('custFaultDesc').innerText = job.faultDesc || 'Not specified';
+
+        document.getElementById('step1').classList.remove('active');
+        document.getElementById('step2').classList.remove('active');
+        document.getElementById('step3').classList.remove('active');
+
+        document.getElementById('step1').classList.add('active');
+        if (job.status === 'In Repair' || job.status === 'Ready for Delivery') {
+            document.getElementById('step2').classList.add('active');
+        }
+        if (job.status === 'Ready for Delivery') {
+            document.getElementById('step3').classList.add('active');
+        }
+
+        document.getElementById('custVehicleSummary').innerHTML = `
+            <p><strong>🏢 Service Center:</strong> ${SHOP_NAME} (Tel: ${SHOP_TEL})</p>
+            <p><strong>👤 Customer:</strong> ${job.customerName}</p>
+            <p><strong>📞 Telephone:</strong> ${job.phone}</p>
+            <p><strong>📅 Received Date:</strong> ${job.createdAt}</p>
+            <p><strong>🛡️ Warranty Valid Until:</strong> ${job.warrantyDate || 'Not specified'}</p>
+        `;
+
+        document.getElementById('custIntakeNote').innerText = job.intakeNote || 'වාහනය භාර ගන්නා ලදී.';
+        document.getElementById('custIntakeMedia').innerHTML = (job.intakeMedia || []).length
+            ? job.intakeMedia.map(m => m.type === 'video'
+                ? `<video src="${m.data}" controls></video>`
+                : `<img src="${m.data}" alt="Intake">`
+            ).join('')
+            : '<p style="color:#64748b; font-size:0.85rem;">Intake video/photos ඇතුළත් කර නැත.</p>';
+
+        document.getElementById('custInspection').innerText = job.inspectionReport || 'Inspection report updating...';
+        document.getElementById('custReplacedItems').innerText = job.repairedItems || 'Items updating...';
+
+        document.getElementById('custReplacedPhotos').innerHTML = (job.replacedPhotos || []).map(m =>
+            `<img src="${m.data}" alt="Replaced Part">`
+        ).join('') || '<p style="color:#64748b; font-size:0.85rem;">Photos ඇතුළත් කර නැත.</p>';
+
+        document.getElementById('custTimeline').innerHTML = (job.updates || []).length
+            ? job.updates.map(u => `
+                <div class="timeline-item">
+                    <div class="timeline-date">${u.timestamp}</div>
+                    <p style="margin-top:4px;">${u.note || ''}</p>
+                    <div class="gallery-grid">
+                        ${(u.media || []).map(m => m.type === 'video'
+                            ? `<video src="${m.data}" controls></video>`
+                            : `<img src="${m.data}" alt="Repair Update">`
+                        ).join('')}
+                    </div>
+                </div>
+            `).join('')
+            : '<p style="color:#64748b;">තවම Progress Updates ඇතුළත් කර නැත.</p>';
+    }
+
+    function exportBackup() {
+        const blob = new Blob([JSON.stringify(jobs, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ss_hybrid_care_backup_${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+    }
+
+    function importBackup(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = async function (e) {
+            try {
+                const parsed = JSON.parse(e.target.result);
+                if (Array.isArray(parsed)) {
+                    jobs = parsed;
+                    persistJobs();
+                    if (dbRef) {
+                        for (const j of jobs) {
+                            await dbRef.child(j.id).set(j);
+                        }
+                    }
+                    renderJobsList();
+                    populateProgressSelect();
+                    alert('Backup Restore සාර්ථකයි!');
+                }
+            } catch {
+                alert('Invalid JSON backup file.');
+            }
+        };
+        reader.readAsText(file);
+    }
+</script>
+</body>
+</html>
